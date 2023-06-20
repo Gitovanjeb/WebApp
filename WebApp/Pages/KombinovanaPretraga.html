@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Napredna Pretraga</title>
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+    <script src="../Scripts/jquery-3.4.1.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+</head>
+<body>
+    <h1>Napredna Pretraga</h1>
+
+    <input type="text" id="naziv" placeholder="Naziv">
+    <input type="text" id="grad" placeholder="Grad">
+    <input type="number" id="minCena" placeholder="Min Cena">
+    <input type="number" id="maxCena" placeholder="Max Cena ">
+    <button id="searchButton">Pretraži</button>
+
+    <table id="resultsTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Naziv</th>
+                <th>Grad</th>
+                <th>Cena</th>
+            </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            $('#searchButton').click(function () {
+                performSearch();
+            });
+        });
+
+        function performSearch() {
+            var naziv = $('#naziv').val();
+            var grad = $('#grad').val();
+            var minCena = parseInt($('#minCena').val()) || 0;
+            var maxCena = parseInt($('#maxCena').val()) || 0;
+
+            $.ajax({
+                url: '/api/Proizvodi/pretraga',
+                type: 'GET',
+                data: {
+                    naziv: naziv,
+                    grad: grad,
+                    minCena: minCena,
+                    maxCena: maxCena
+                },
+                success: function (data) {
+                    displayResults(data);
+                },
+                error: function () {
+                    alert('Error occurred while performing search.');
+                }
+            });
+        }
+
+        function displayResults(results) {
+            var tableBody = $('#resultsBody');
+            tableBody.empty();
+
+            if (results.length > 0) {
+                $('#resultsTable').show();
+
+                $.each(results, function (index, product) {
+                    var row = '<tr>' +
+                        '<td>' + product.Id + '</td>' +
+                        '<td>' + product.Ime + '</td>' +
+                        '<td>' + product.Grad + '</td>' +
+                        '<td>' + product.Cena + '</td>' +
+                        '</tr>';
+
+                    tableBody.append(row);
+                });
+            } else {
+                $('#resultsTable').hide();
+            }
+        }
+    </script>
+</body>
+</html>
